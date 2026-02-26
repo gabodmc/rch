@@ -1,0 +1,91 @@
+@use "../../styles/variables" as *;
+@use "../../styles/palette" as *;
+
+.stats-tables {
+	background: var(--card-background);
+	border-radius: 12px;
+	overflow: hidden;
+
+	.stats-title {
+		padding: 0.8rem 1rem;
+		background: $col-azullogo;
+		color: #fff;
+		font-size: 0.85em;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
+	.table.posiciones {
+		width: 100%;
+		font-size: 0.75em;
+
+		thead.sticky {
+			position: sticky;
+			top: 0;
+
+			tr {
+				background: var(--col-primary-10);
+			}
+
+			th {
+				padding: 0.5rem 0.3rem;
+				text-align: center;
+				font-weight: 700;
+				font-size: 0.85em;
+				color: var(--col-primary-60);
+
+				&.left {
+					text-align: left;
+					padding-left: 0.5rem;
+				}
+			}
+		}
+
+		tbody {
+			tr {
+				border-bottom: 1px solid var(--col-primary-10);
+
+				&:nth-child(even) {
+					background: var(--col-tableeven);
+				}
+			}
+
+			td,
+			th {
+				padding: 0.3rem;
+				text-align: center;
+				vertical-align: middle;
+			}
+
+			th.pos {
+				width: 24px;
+				font-weight: 700;
+				color: var(--col-primary-50);
+			}
+
+			td img {
+				width: 20px;
+				height: 20px;
+				object-fit: contain;
+			}
+
+			td.left {
+				text-align: left;
+			}
+
+			td.team {
+				font-weight: 700;
+				white-space: nowrap;
+			}
+
+			td.section {
+				background: var(--col-primary-10);
+				font-weight: 700;
+				text-align: left;
+				padding: 0.5rem;
+				font-size: 0.9em;
+				color: $col-celeste;
+			}
+		}
+	}
+}

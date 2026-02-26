@@ -1,0 +1,102 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Header from "../../components/Header/Header.astro";
+import Footer from "../../components/Footer/Footer.astro";
+import NoticiaCard from "../../components/NoticiaCard/NoticiaCard.astro";
+import Pagination from "../../components/Pagination/Pagination.astro";
+import Publicidad from "../../components/Publicidad/Publicidad.astro";
+import { useContent } from "../../content/useContent.js";
+
+const url = new URL(Astro.request.url);
+const pag = Number(url.searchParams.get("pag")) || 1;
+const categoria = url.searchParams.get("categoria") || "";
+const filtro = url.searchParams.get("filtro") || "";
+const clubId = url.searchParams.get("club_id") || "";
+
+const [noticias, publicidades] = await Promise.all([
+	useContent({ source: "noticias-list" }),
+	useContent({ source: "publicidades" }),
+]);
+
+// Filter
+let filtered = noticias ?? [];
+if (categoria) {
+	filtered = filtered.filter((n: any) => n.categoria === categoria);
+}
+if (filtro) {
+	const q = filtro.toLowerCase();
+	filtered = filtered.filter((n: any) =>
+		n.titulo?.toLowerCase().includes(q) || n.copete?.toLowerCase().includes(q)
+	);
+}
+
+// Paginate
+const itemsPerPage = 12;
+const totalPages = Math.ceil(filtered.length / itemsPerPage);
+const start = (pag - 1) * itemsPerPage;
+const paginated = filtered.slice(start, start + itemsPerPage);
+
+const pub300 = (publicidades ?? []).filter((p: any) => p.ancho === 300 && p.alto === 250);
+const pub350 = (publicidades ?? []).filter((p: any) => p.ancho === 350 && p.alto === 100);
+
+const pageTitle = categoria
+	? `${categoria} - Rugby Champagne`
+	: filtro
+		? `Búsqueda: ${filtro} - Rugby Champagne`
+		: "Noticias - Rugby Champagne";
+
+const queryParams: Record<string, string> = {};
+if (categoria) queryParams.categoria = categoria;
+if (filtro) queryParams.filtro = filtro;
+if (clubId) queryParams.club_id = clubId;
+---
+
+<MainLayout title={pageTitle}>
+	<div class="main-content">
+		<Header />
+		<main>
+			<div class="wrapper">
+				{(categoria || filtro) && (
+					<div class="category-title">
+						{categoria || `Búsqueda: ${filtro}`}
+					</div>
+				)}
+				<div class="main-container">
+					<div class="main-content">
+						<div class="news-grid">
+							{paginated.map((n: any) => (
+								<NoticiaCard
+									id={n.id}
+									titulo={n.titulo}
+									copete={n.copete}
+									categoria={n.categoria}
+									fecha_str={n.fecha_str}
+									imagen_url={n.imagen_url}
+									slug={n.slug}
+								/>
+							))}
+						</div>
+						<Pagination
+							currentPage={pag}
+							totalPages={totalPages}
+							baseUrl="/noticias"
+							queryParams={queryParams}
+						/>
+					</div>
+					<aside>
+						{pub300.length > 0 && (
+							<a href={pub300[0].link}><img src={pub300[0].imagen_url} alt="" /></a>
+						)}
+						{pub350.length > 0 && (
+							<a href={pub350[0].link}><img src={pub350[0].imagen_url} alt="" /></a>
+						)}
+						<a href="/torneos" class="banner-stats">
+							<h4 class="title-stats"><span>Resultados</span> <span>&amp;</span><br /><span>estadísticas</span></h4>
+						</a>
+					</aside>
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</div>
+</MainLayout>

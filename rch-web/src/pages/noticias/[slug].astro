@@ -1,0 +1,165 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Header from "../../components/Header/Header.astro";
+import Footer from "../../components/Footer/Footer.astro";
+import NoticiaDetalle from "../../components/NoticiaDetalle/NoticiaDetalle.astro";
+import NoticiaCard from "../../components/NoticiaCard/NoticiaCard.astro";
+import GaleriaFotos from "../../components/GaleriaFotos/GaleriaFotos.astro";
+import { useContent } from "../../content/useContent.js";
+
+// Extract ID from slug: "titulo-del-articulo-123" → 123
+const { slug } = Astro.params;
+const idMatch = slug?.match(/-(\d+)$/);
+const id = idMatch ? Number(idMatch[1]) : null;
+
+if (!id) {
+	return Astro.redirect("/404");
+}
+
+const [noticia, galeria, noticias, publicidades] = await Promise.all([
+	useContent({ source: "noticias-detail", query: { id } }),
+	useContent({ source: "noticias-galeria", query: { id } }),
+	useContent({ source: "noticias-list" }),
+	useContent({ source: "publicidades" }),
+]);
+
+if (!noticia) {
+	Astro.response.status = 404;
+}
+
+// Track read
+if (noticia) {
+	const API_URL = import.meta.env.PUBLIC_API_URL;
+	try {
+		await fetch(`${API_URL}/api/noticias/${id}/lectura`, { method: "POST" });
+	} catch {}
+}
+
+// Related: same category + latest
+const allNoticias = noticias ?? [];
+const relatedByCategory = allNoticias
+	.filter((n: any) => n.categoria_id === noticia?.categoria_id && n.id !== id)
+	.slice(0, 4);
+const relatedLatest = allNoticias
+	.filter((n: any) => n.id !== id)
+	.slice(0, 4);
+
+const pub790 = (publicidades ?? []).filter((p: any) => p.ancho === 790 && p.alto === 60);
+const pub300 = (publicidades ?? []).filter((p: any) => p.ancho === 300 && p.alto === 250);
+const pub350 = (publicidades ?? []).filter((p: any) => p.ancho === 350 && p.alto === 100);
+
+const siteUrl = "https://www.rugbychampagneweb.com";
+---
+
+<MainLayout
+	title={noticia ? `${noticia.titulo} - Rugby Champagne` : "No encontrado"}
+	description={noticia?.copete ?? ""}
+	ogImage={noticia?.imagen_url}
+	ogType="article"
+	articleDate={noticia?.fecha_str ?? undefined}
+	articleAuthor={noticia?.fuente ?? undefined}
+>
+	<Header />
+	<main>
+		{noticia ? (
+			<>
+				<NoticiaDetalle noticia={noticia}>
+					<Fragment slot="aside-top">
+						{pub300.length > 0 && (
+							<a href={pub300[0].link} class="ad-link"><img src={pub300[0].imagen_url} alt="" /></a>
+						)}
+					</Fragment>
+
+					<Fragment slot="ad-fullscreen">
+						{pub790.length > 0 && (
+							<div class="ads ad-full-screen">
+								<a href={pub790[0].link}><img src={pub790[0].imagen_url} alt="" /></a>
+							</div>
+						)}
+					</Fragment>
+
+					<Fragment slot="galeria">
+						<GaleriaFotos images={galeria ?? []} />
+					</Fragment>
+
+					<Fragment slot="aside-bottom">
+						{pub300.length > 1 && (
+							<a href={pub300[1].link}><img src={pub300[1].imagen_url} alt="" /></a>
+						)}
+						{pub350.length > 0 && (
+							<a href={pub350[0].link}><img src={pub350[0].imagen_url} alt="" /></a>
+						)}
+					</Fragment>
+				</NoticiaDetalle>
+
+				<!-- Related content -->
+				<div class="related-content">
+					<div class="wrapper">
+						<div class="main-container">
+							{relatedByCategory.length > 0 && (
+								<div class="news-grid">
+									{relatedByCategory.map((n: any) => (
+										<NoticiaCard
+											id={n.id}
+											titulo={n.titulo}
+											copete={n.copete}
+											categoria={n.categoria}
+											fecha_str={n.fecha_str}
+											imagen_url={n.imagen_url}
+											slug={n.slug}
+										/>
+									))}
+								</div>
+							)}
+							<div class="news-grid">
+								{relatedLatest.map((n: any) => (
+									<NoticiaCard
+										id={n.id}
+										titulo={n.titulo}
+										copete={n.copete}
+										categoria={n.categoria}
+										fecha_str={n.fecha_str}
+										imagen_url={n.imagen_url}
+										slug={n.slug}
+									/>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- JSON-LD: NewsArticle -->
+				<script type="application/ld+json" set:html={JSON.stringify({
+					"@context": "https://schema.org",
+					"@type": "NewsArticle",
+					headline: noticia.titulo,
+					image: noticia.imagen_url,
+					datePublished: `${noticia.fecha_str}T00:00:00Z`,
+					author: {
+						"@type": "Organization",
+						name: noticia.fuente ?? "Rugby Champagne",
+					},
+					publisher: {
+						"@type": "Organization",
+						name: "Rugby Champagne",
+						logo: {
+							"@type": "ImageObject",
+							url: `${siteUrl}/images/logo-rch-black.png`,
+						},
+					},
+					description: noticia.copete,
+					url: `${siteUrl}${Astro.url.pathname}`,
+				})} />
+			</>
+		) : (
+			<div class="wrapper" style="padding: 4rem 0; text-align: center;">
+				<h2>Noticia no encontrada</h2>
+				<p>La noticia que buscas no existe o fue eliminada.</p>
+				<a href="/noticias" style="color: var(--col-azul); margin-top: 1rem; display: inline-block;">
+					Volver a noticias
+				</a>
+			</div>
+		)}
+	</main>
+	<Footer />
+</MainLayout>

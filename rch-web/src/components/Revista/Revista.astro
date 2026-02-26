@@ -1,0 +1,28 @@
+---
+interface Props {
+	revista: {
+		link: string | null;
+		imagen_url: string;
+		anio: number;
+		mes: number;
+	} | null;
+}
+
+const { revista } = Astro.props;
+---
+
+{revista && (
+	<div class="aside-box revista-box">
+		<div class="aside-head">
+			<h3>Revista del mes</h3>
+		</div>
+		<a
+			href={revista.link ?? "#"}
+			class="banner-hover"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			<img src={revista.imagen_url} alt="Revista Rugby Champagne" class="banner-high" />
+		</a>
+	</div>
+)}

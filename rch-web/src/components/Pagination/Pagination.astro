@@ -1,0 +1,52 @@
+---
+interface Props {
+	currentPage: number;
+	totalPages: number;
+	baseUrl: string;
+	queryParams?: Record<string, string>;
+}
+
+const { currentPage, totalPages, baseUrl, queryParams = {} } = Astro.props;
+
+const startPage = Math.max(1, currentPage - 2);
+const endPage = Math.min(totalPages, currentPage + 2);
+
+function buildUrl(page: number) {
+	const params = new URLSearchParams({ ...queryParams, pag: String(page) });
+	return `${baseUrl}?${params.toString()}`;
+}
+---
+
+{totalPages > 1 && (
+	<div class="news-control">
+		{currentPage > 1 && (
+			<a href={buildUrl(currentPage - 1)} class="nav">Anterior</a>
+		)}
+
+		{startPage > 1 && (
+			<>
+				<a href={buildUrl(1)}>1</a>
+				<span class="dots">...</span>
+			</>
+		)}
+
+		{Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) =>
+			page === currentPage ? (
+				<a href="#" class="sel">{page}</a>
+			) : (
+				<a href={buildUrl(page)}>{page}</a>
+			)
+		)}
+
+		{endPage < totalPages && (
+			<>
+				<span class="dots">...</span>
+				<a href={buildUrl(totalPages)}>{totalPages}</a>
+			</>
+		)}
+
+		{currentPage < totalPages && (
+			<a href={buildUrl(currentPage + 1)} class="nav">Siguiente</a>
+		)}
+	</div>
+)}

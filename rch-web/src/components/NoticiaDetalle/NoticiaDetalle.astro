@@ -1,0 +1,82 @@
+---
+import "./noticia-detalle.scss";
+
+interface Props {
+	noticia: {
+		id: number;
+		titulo: string | null;
+		copete: string | null;
+		contenido: string | null;
+		categoria: string | null;
+		fecha_str: string | null;
+		fuente: string | null;
+		fotografo: string | null;
+		imagen_url: string;
+		nombre_imagen: string | null;
+		torneo_id: number | null;
+	};
+}
+
+const { noticia } = Astro.props;
+---
+
+<div class="main-container-head">
+	<div class="wrapper main-container">
+		<article class="article-head">
+			<figure>
+				<img
+					src={noticia.imagen_url}
+					class="main-img"
+					alt={noticia.titulo ?? ""}
+					fetchpriority="high"
+				/>
+				<figcaption>
+					<div class="wrapper">
+						{noticia.categoria && <span>{noticia.categoria}</span>}
+						<h3>{noticia.titulo}</h3>
+					</div>
+				</figcaption>
+			</figure>
+		</article>
+		<aside>
+			<slot name="aside-top" />
+			<a href="/torneos" class="banner-stats">
+				<h4 class="title-stats"><span>Resultados</span> <span>&amp;</span><br /><span>estadísticas</span></h4>
+			</a>
+		</aside>
+	</div>
+	<div class="wrapper">
+		<div class="article-meta">
+			<div class="article-credits">
+				{noticia.fecha_str && <span class="article-date">{noticia.fecha_str}</span>}
+				{noticia.fuente && <span class="article-author">{noticia.fuente}</span>}
+				{noticia.fotografo && <span class="article-photographer">Fotos: {noticia.fotografo}</span>}
+			</div>
+			<div class="article-social">
+				<ul class="social-buttons">
+					<li><a class="fac" href="#" target="_blank" rel="noopener noreferrer"><i></i></a></li>
+					<li><a class="twi" href="#" target="_blank" rel="noopener noreferrer"><i></i></a></li>
+					<li><a class="you" href="#" target="_blank" rel="noopener noreferrer"><i></i></a></li>
+					<li><a class="ins" href="#" target="_blank" rel="noopener noreferrer"><i></i></a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<slot name="ad-fullscreen" />
+
+<div class="wrapper">
+	<div class="main-container">
+		<div class="main-content">
+			<article class="article-content">
+				{noticia.copete && <p class="lead">{noticia.copete}</p>}
+				<Fragment set:html={noticia.contenido} />
+				<slot name="galeria" />
+			</article>
+		</div>
+		<aside>
+			<slot name="aside-bottom" />
+		</aside>
+	</div>
+</div>

@@ -1,0 +1,108 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Header from "../components/Header/Header.astro";
+import Footer from "../components/Footer/Footer.astro";
+import TopFixtures from "../components/TopFixtures/TopFixtures.astro";
+import NoticiaCard from "../components/NoticiaCard/NoticiaCard.astro";
+import Publicidad from "../components/Publicidad/Publicidad.astro";
+import Revista from "../components/Revista/Revista.astro";
+import { useContent } from "../content/useContent.js";
+
+const [noticias, destacada, publicidades, revista, fixtureIntegrado] = await Promise.all([
+	useContent({ source: "noticias-list" }),
+	useContent({ source: "noticias-destacada" }),
+	useContent({ source: "publicidades" }),
+	useContent({ source: "revista-ultima" }),
+	useContent({ source: "fixture-integrado" }),
+]);
+
+const noticiasHome = (noticias ?? []).slice(0, 12);
+const pub790 = (publicidades ?? []).filter((p: any) => p.ancho === 790 && p.alto === 60);
+const pub300 = (publicidades ?? []).filter((p: any) => p.ancho === 300 && p.alto === 250);
+const pub350 = (publicidades ?? []).filter((p: any) => p.ancho === 350 && p.alto === 100);
+const pub728 = (publicidades ?? []).filter((p: any) => p.ancho === 728 && p.alto === 90);
+---
+
+<MainLayout>
+	<body class="home">
+		<TopFixtures partidos={fixtureIntegrado ?? []} />
+		<div class="main-content">
+			<Header />
+			<main>
+				{destacada && (
+					<div class="article-head-wrapper">
+						<article class="featured article-head">
+							<a href={`/noticias/${destacada.slug}-${destacada.id}`}>
+								<figure>
+									<img
+										src={destacada.imagen_url}
+										class="main-img"
+										alt={destacada.titulo}
+										fetchpriority="high"
+									/>
+									<figcaption>
+										<div class="wrapper">
+											<span>{destacada.categoria}</span>
+											<h3>{destacada.titulo}</h3>
+										</div>
+									</figcaption>
+								</figure>
+							</a>
+						</article>
+					</div>
+				)}
+
+				{pub790.length > 0 && (
+					<div class="ads ad-full-screen">
+						<a href={pub790[0].link}><img src={pub790[0].imagen_url} alt="" /></a>
+					</div>
+				)}
+
+				<div class="wrapper">
+					<div class="main-container">
+						<div class="main-content">
+							<div class="news-grid">
+								{noticiasHome.map((n: any) => (
+									<NoticiaCard
+										id={n.id}
+										titulo={n.titulo}
+										copete={n.copete}
+										categoria={n.categoria}
+										fecha_str={n.fecha_str}
+										imagen_url={n.imagen_url}
+										slug={n.slug}
+									/>
+								))}
+							</div>
+							<div class="news-control">
+								<a href="/noticias" class="btn-wide">Ver todas las noticias</a>
+							</div>
+						</div>
+						<aside>
+							{pub300.length > 0 && (
+								<a href={pub300[0].link}><img src={pub300[0].imagen_url} alt="" /></a>
+							)}
+							{pub350.length > 0 && (
+								<a href={pub350[0].link}><img src={pub350[0].imagen_url} alt="" /></a>
+							)}
+							<a href="/torneos" class="banner-stats">
+								<h4 class="title-stats"><span>Resultados</span> <span>&amp;</span><br /><span>estadísticas</span></h4>
+							</a>
+							<Revista revista={revista} />
+							<div class="aside-box newsletter-box">
+								<div class="aside-head">
+									<h3>Newsletter</h3>
+								</div>
+								<ul>
+									<li><a href="#">Newsletter web</a></li>
+									<li><a href="https://www.youtube.com/@RugbyChampagne_" target="_blank" rel="noopener noreferrer">Newsletter digital</a></li>
+								</ul>
+							</div>
+						</aside>
+					</div>
+				</div>
+			</main>
+			<Footer />
+		</div>
+	</body>
+</MainLayout>

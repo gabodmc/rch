@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.rugbychampagneweb.com/sitemap-index.xml
+
+# Block crawlers from admin/api paths
+Disallow: /api/

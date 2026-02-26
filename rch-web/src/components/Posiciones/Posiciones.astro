@@ -1,0 +1,88 @@
+---
+import "./posiciones.scss";
+
+interface Posicion {
+	Nro: number;
+	Equipo: string | null;
+	equipo_id: number;
+	club_id: number;
+	pais_id: number;
+	Puntos: number;
+	Jugados: number;
+	Ganados: number;
+	Empatados: number;
+	Perdidos: number;
+	GF: number;
+	GC: number;
+	zona_desc: string | null;
+}
+
+interface Props {
+	posiciones: Posicion[];
+	nombreTorneo?: string;
+}
+
+const { posiciones, nombreTorneo } = Astro.props;
+
+function equipoImage(clubId: number, paisId: number) {
+	const base = "http://rch.devzone.com.ar/files/teams/";
+	return clubId !== 0 ? `${base}${clubId}.png` : `${base}p_${paisId}.png`;
+}
+
+const ERROR_IMG = "http://rch.devzone.com.ar/files/teams/0.png";
+let antZona = "";
+let nro = 0;
+---
+
+<div class="stats-tables">
+	{nombreTorneo && <h4 class="stats-title">{nombreTorneo}</h4>}
+	<table class="table posiciones">
+		<thead class="sticky">
+			<tr>
+				<th class="left" colspan="3">Equipos</th>
+				<th><abbr title="Puntos">Pts</abbr></th>
+				<th><abbr title="Jugados">J</abbr></th>
+				<th><abbr title="Ganados">G</abbr></th>
+				<th><abbr title="Empatados">E</abbr></th>
+				<th><abbr title="Perdidos">P</abbr></th>
+				<th><abbr title="Puntos a Favor">PF</abbr></th>
+				<th><abbr title="Puntos en Contra">PC</abbr></th>
+			</tr>
+		</thead>
+		<tbody>
+			{posiciones.map((item) => {
+				nro++;
+				const showZona = item.zona_desc && item.zona_desc !== antZona;
+				antZona = item.zona_desc ?? "";
+
+				return (
+					<>
+						{showZona && (
+							<tr>
+								<td colspan="10" class="section">ZONA {item.zona_desc}</td>
+							</tr>
+						)}
+						<tr>
+							<th class="pos">{nro}</th>
+							<td>
+								<img
+									src={equipoImage(item.club_id, item.pais_id)}
+									alt={item.Equipo ?? ""}
+									onerror={`this.onerror=null;this.src='${ERROR_IMG}'`}
+								/>
+							</td>
+							<td class="left team">{item.Equipo}</td>
+							<td>{item.Puntos}</td>
+							<td>{item.Jugados}</td>
+							<td>{item.Ganados}</td>
+							<td>{item.Empatados}</td>
+							<td>{item.Perdidos}</td>
+							<td>{item.GF}</td>
+							<td>{item.GC}</td>
+						</tr>
+					</>
+				);
+			})}
+		</tbody>
+	</table>
+</div>

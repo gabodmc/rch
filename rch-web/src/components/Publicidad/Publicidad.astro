@@ -1,0 +1,30 @@
+---
+interface Props {
+	items: Array<{
+		id: number;
+		imagen_url: string;
+		link: string | null;
+		ancho: number;
+		alto: number;
+	}>;
+	size?: string;
+}
+
+const { items, size } = Astro.props;
+
+const filtered = size
+	? items.filter((p) => `${p.ancho}x${p.alto}` === size)
+	: items;
+---
+
+{filtered.length > 0 && filtered.map((pub) => (
+	<div class="ads ad-full-screen">
+		{pub.link ? (
+			<a href={pub.link}>
+				<img src={pub.imagen_url} alt="" loading="lazy" />
+			</a>
+		) : (
+			<img src={pub.imagen_url} alt="" loading="lazy" />
+		)}
+	</div>
+))}

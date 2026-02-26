@@ -1,0 +1,93 @@
+---
+import "./top-fixtures.scss";
+
+interface Partido {
+	id: number;
+	local: string | null;
+	visitante: string | null;
+	goles_local: number | null;
+	goles_visitante: number | null;
+	fecha: string;
+	nro_fecha: number;
+	torneo: string | null;
+	torneo_id: number;
+	imagen_local: string;
+	imagen_visitante: string;
+}
+
+interface Props {
+	partidos: Partido[];
+}
+
+const { partidos } = Astro.props;
+const ERROR_IMG = "http://rch.devzone.com.ar/files/teams/0.png";
+
+// Group: insert tournament headers
+let antTorneo = "";
+---
+
+<div class="top-fixtures">
+	<ul class="widget-fixtures">
+		{partidos.map((p) => {
+			const showHeader = p.torneo !== antTorneo;
+			antTorneo = p.torneo ?? "";
+			const fechaObj = new Date(p.fecha);
+			const fechaStr = `${fechaObj.getDate()}/${fechaObj.getMonth() + 1}`;
+
+			return (
+				<>
+					{showHeader && (
+						<li class={`torneo t_${p.torneo_id}`}>
+							<a href={`/torneos?torneo_id=${p.torneo_id}`}>
+								{p.torneo}
+							</a>
+						</li>
+					)}
+					<li>
+						<div class="equipo">
+							<div class="esc">
+								<img
+									src={p.imagen_local}
+									alt={p.local ?? ""}
+									loading="lazy"
+									onerror={`this.onerror=null;this.src='${ERROR_IMG}'`}
+								/>
+							</div>
+							<div class="nom">{p.local}</div>
+							<div class="res"><span>{p.goles_local}</span></div>
+						</div>
+						<div class="equipo">
+							<div class="esc">
+								<img
+									src={p.imagen_visitante}
+									alt={p.visitante ?? ""}
+									loading="lazy"
+									onerror={`this.onerror=null;this.src='${ERROR_IMG}'`}
+								/>
+							</div>
+							<div class="nom">{p.visitante}</div>
+							<div class="res"><span>{p.goles_visitante}</span></div>
+						</div>
+						<time>{fechaStr} - Fecha: {p.nro_fecha}</time>
+					</li>
+				</>
+			);
+		})}
+	</ul>
+</div>
+
+<script>
+	// Horizontal scroll with buttons (CSS scroll-snap based)
+	const container = document.querySelector('.widget-fixtures');
+	if (container) {
+		const scrollAmount = 300;
+		document.querySelector('.top-fixtures')?.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement;
+			if (target.classList.contains('control-prev')) {
+				container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+			} else if (target.classList.contains('control-next')) {
+				container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+			}
+		});
+	}
+</script>

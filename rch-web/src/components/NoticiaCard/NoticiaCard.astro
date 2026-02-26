@@ -1,0 +1,42 @@
+---
+import "./noticia-card.scss";
+
+interface Props {
+	id: number;
+	titulo: string;
+	copete: string;
+	categoria: string | null;
+	fecha_str: string;
+	imagen_url: string;
+	slug: string;
+}
+
+const { id, titulo, copete, categoria, fecha_str, imagen_url, slug } = Astro.props;
+
+const MESES_3 = ["", "ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+const date = new Date(fecha_str);
+const mes = MESES_3[date.getMonth() + 1] || "";
+const dia = String(date.getDate()).padStart(2, "0");
+const href = `/noticias/${slug}-${id}`;
+---
+
+<article>
+	<a href={href}>
+		<figure>
+			<img src={imagen_url} alt={titulo} loading="lazy" />
+		</figure>
+		<figcaption>
+			<div class="box-content">
+				<h3>{titulo}</h3>
+				<p>{copete}</p>
+			</div>
+			<div class="box-info">
+				{categoria && <span class="categoria">{categoria}</span>}
+				<time datetime={fecha_str}>
+					<span class="mes">{mes}</span>
+					<span class="dia">{dia}</span>
+				</time>
+			</div>
+		</figcaption>
+	</a>
+</article>

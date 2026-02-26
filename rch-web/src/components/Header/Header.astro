@@ -1,0 +1,101 @@
+---
+import "./header.scss";
+---
+
+<header>
+	<div class="wrapper">
+		<a href="/"><h1>Rugby Champagne</h1></a>
+		<nav class="menu-wrap">
+			<div class="header-tools">
+				<fieldset class="search-form">
+					<form action="/noticias" method="get" class="search-form">
+						<input
+							id="site-search"
+							name="filtro"
+							class="search-input"
+							type="search"
+							placeholder="Buscar..."
+							aria-label="Buscador"
+							autocomplete="off"
+						/>
+						<button type="submit" class="ico search">Buscar</button>
+					</form>
+				</fieldset>
+				<button class="ico theme-toggle" id="modeToggle">Cambiar tema</button>
+			</div>
+			<div class="botones">
+				<div class="clu">
+					<a href="#">Busca tu club</a>
+					<div class="dropdown-content">
+						<!-- Clubs will be loaded dynamically -->
+					</div>
+				</div>
+				<div class="loc">
+					<a class="loc" href="#">Rugby local</a>
+					<div class="dropdown-content">
+						<a href="/noticias?categoria=Top 12">Top 12</a>
+						<a href="/noticias?categoria=Primera A">Primera A</a>
+						<a href="/noticias?categoria=Primera B">Primera B</a>
+						<a href="/noticias?categoria=Primera C">Primera C</a>
+						<a href="/noticias?categoria=Segunda">Segunda</a>
+						<a href="/noticias?categoria=Tercera">Tercera</a>
+						<a href="/noticias?categoria=Desarrollo">Desarrollo</a>
+						<a href="/noticias?categoria=Nacional de Clubes A">Nacional de Clubes A</a>
+						<a href="/noticias?categoria=Torneo del Interior A">Torneo del Interior A</a>
+						<a href="/noticias?categoria=Torneo del Interior B">Torneo del Interior B</a>
+					</div>
+				</div>
+				<div class="int">
+					<a class="int" href="#">Rugby internacional</a>
+					<div class="dropdown-content">
+						<a href="/noticias?categoria=Super Rugby Americas">Super Rugby Americas</a>
+						<a href="/noticias?categoria=Amistosos Internacionales">Amistosos Internacionales</a>
+						<a href="/noticias?categoria=Rugby Championship">Rugby Championship</a>
+						<a href="/noticias?categoria=Seis Naciones">Seis Naciones</a>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<a class="menutoggle" href="#"><span>menu</span></a>
+	</div>
+</header>
+
+<script>
+	// Theme toggle
+	const toggleBtn = document.querySelector("header .theme-toggle");
+	toggleBtn?.addEventListener("click", () => {
+		document.body.classList.toggle("dark-mode");
+		document.body.classList.toggle("light-mode");
+		const newMode = document.body.classList.contains("dark-mode") ? "dark" : "light";
+		localStorage.setItem("theme", newMode);
+	});
+
+	// Mobile menu
+	const menuToggle = document.querySelector(".menutoggle");
+	menuToggle?.addEventListener("click", (e) => {
+		e.preventDefault();
+		document.body.classList.toggle("show-menu");
+	});
+
+	const overlay = document.createElement("div");
+	overlay.className = "overbody";
+	overlay.addEventListener("click", () => {
+		document.body.classList.remove("show-menu");
+	});
+	const nav = document.querySelector("nav.menu-wrap");
+	if (nav) nav.insertAdjacentElement("beforebegin", overlay);
+
+	// Desktop dropdown hover
+	const navbotones = document.querySelectorAll("header .botones > div:not(.fav) > a");
+	navbotones.forEach((link) => {
+		link.addEventListener("click", (e) => {
+			e.preventDefault();
+			document.querySelectorAll("header .botones .dropdown-content.active")
+				.forEach((drop) => drop.classList.remove("active"));
+			const dropdown = link.nextElementSibling;
+			if (dropdown?.classList.contains("dropdown-content")) {
+				dropdown.classList.add("active");
+			}
+		});
+	});
+</script>

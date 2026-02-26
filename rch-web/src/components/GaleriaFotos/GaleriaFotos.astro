@@ -1,0 +1,27 @@
+---
+import "./galeria-fotos.scss";
+
+interface Props {
+	images: Array<{
+		id: number;
+		imagen_url: string;
+	}>;
+}
+
+const { images } = Astro.props;
+---
+
+{images.length > 0 && (
+	<div class="gals gal-img">
+		<h4>Galería de Imagenes</h4>
+		<ul>
+			{images.map((img) => (
+				<li>
+					<a href={img.imagen_url} target="_blank" rel="noopener noreferrer">
+						<img src={img.imagen_url} alt="" loading="lazy" />
+					</a>
+				</li>
+			))}
+		</ul>
+	</div>
+)}

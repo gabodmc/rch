@@ -1,0 +1,52 @@
+---
+import "./sponsors.scss";
+
+interface Props {
+	items: Array<{
+		id: number;
+		nombre: string | null;
+		link: string | null;
+		imagen_url: string;
+	}>;
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+	<div class="sponsors">
+		<div class="logo-slider">
+			<div class="logo-track">
+				<div class="logo-row">
+					{items.map((s) => (
+						<img src={s.imagen_url} alt={s.nombre ?? ""} />
+					))}
+				</div>
+			</div>
+		</div>
+	</div>
+)}
+
+<script>
+	const track = document.querySelector(".logo-track");
+	const row = track?.querySelector(".logo-row");
+	if (track && row) {
+		const clone = row.cloneNode(true);
+		track.appendChild(clone);
+
+		window.addEventListener("load", () => {
+			const rowWidth = row.getBoundingClientRect().width;
+			const style = document.createElement("style");
+			style.innerHTML = `
+				@keyframes logoScroll {
+					0% { transform: translateX(0); }
+					100% { transform: translateX(-${rowWidth}px); }
+				}
+				.logo-track {
+					animation: logoScroll 40s linear infinite;
+				}
+			`;
+			document.head.appendChild(style);
+		});
+	}
+</script>
