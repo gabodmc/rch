@@ -1,0 +1,32 @@
+@use "../../styles/variables" as *;
+@use "../../styles/palette" as *;
+
+.torneos-list {
+	ul {
+		padding: 0.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	li {
+		a {
+			display: block;
+			padding: 0.5rem 0.8rem;
+			border-radius: 6px;
+			font-size: 0.85em;
+			line-height: 1.3;
+			transition: background 0.15s;
+
+			&:hover {
+				background: var(--col-primary-10);
+			}
+		}
+
+		&.active a {
+			background: $col-azullogo;
+			color: #fff;
+			font-weight: 700;
+		}
+	}
+}

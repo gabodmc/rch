@@ -1,0 +1,48 @@
+@use "../../styles/variables" as *;
+@use "../../styles/palette" as *;
+
+.rondas-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0;
+
+	.label {
+		font-size: 0.8em;
+		font-weight: 700;
+		color: var(--col-primary-50);
+		white-space: nowrap;
+	}
+
+	.rondas-list {
+		display: flex;
+		gap: 3px;
+		flex-wrap: wrap;
+	}
+
+	.ronda-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 28px;
+		height: 28px;
+		padding: 0 0.3rem;
+		border: none;
+		border-radius: 6px;
+		background: var(--col-primary-10);
+		color: var(--primary);
+		font-size: 0.8em;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s;
+
+		&:hover {
+			background: var(--col-primary-20);
+		}
+
+		&.active {
+			background: $col-azullogo;
+			color: #fff;
+		}
+	}
+}

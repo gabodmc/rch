@@ -1,0 +1,28 @@
+---
+import "./torneos-list.scss";
+
+interface TorneoItem {
+	id: number;
+	nombre: string | null;
+}
+
+interface Props {
+	torneos: TorneoItem[];
+	torneoActivo?: number;
+}
+
+const { torneos, torneoActivo } = Astro.props;
+---
+
+<div class="aside-box torneos-list">
+	<div class="aside-head">
+		<h3>Torneos</h3>
+	</div>
+	<ul>
+		{torneos.map((t) => (
+			<li class={t.id === torneoActivo ? "active" : ""}>
+				<a href={`/torneos?torneo_id=${t.id}`}>{t.nombre}</a>
+			</li>
+		))}
+	</ul>
+</div>

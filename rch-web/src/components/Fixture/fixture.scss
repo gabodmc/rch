@@ -1,0 +1,72 @@
+@use "../../styles/variables" as *;
+@use "../../styles/palette" as *;
+
+.fixture-container {
+	background: var(--card-background);
+	border-radius: 12px;
+	overflow: hidden;
+
+	.fixture-title {
+		padding: 0.8rem 1rem;
+		background: $col-verdelogo;
+		color: #fff;
+		font-size: 0.85em;
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
+	.no-data {
+		padding: 2rem 1rem;
+		text-align: center;
+		color: var(--col-primary-40);
+		font-size: 0.85em;
+	}
+
+	.instancia-tabs {
+		display: flex;
+		gap: 0;
+		border-bottom: 1px solid var(--col-primary-10);
+		overflow-x: auto;
+
+		.tab-btn {
+			flex: 1;
+			padding: 0.6rem 1rem;
+			border: none;
+			background: transparent;
+			color: var(--col-primary-60);
+			font-size: 0.8em;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+			border-bottom: 2px solid transparent;
+			transition: all 0.15s;
+
+			&:hover {
+				color: var(--primary);
+				background: var(--col-primary-10);
+			}
+
+			&.active {
+				color: $col-azullogo;
+				border-bottom-color: $col-azullogo;
+			}
+		}
+	}
+
+	.instancia-panel {
+		display: none;
+		padding: 0.5rem;
+
+		&.visible {
+			display: block;
+		}
+	}
+
+	.ronda-panel {
+		display: none;
+
+		&.visible {
+			display: block;
+		}
+	}
+}

@@ -1,0 +1,93 @@
+@use "../../styles/variables" as *;
+@use "../../styles/palette" as *;
+
+.partidos-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+
+	.no-data {
+		padding: 1rem;
+		text-align: center;
+		color: var(--col-primary-40);
+		font-size: 0.85em;
+	}
+
+	.partido {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.8rem;
+		background: var(--card-background);
+		border-radius: 6px;
+
+		&.playing {
+			border-left: 3px solid $col-verde;
+		}
+
+		&.played {
+			opacity: 0.85;
+		}
+
+		.equipo {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+
+			img {
+				width: 24px;
+				height: 24px;
+				object-fit: contain;
+				flex-shrink: 0;
+			}
+
+			.nombre {
+				font-size: 0.85em;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.goles {
+				font-weight: 700;
+				font-size: 1em;
+				min-width: 20px;
+				text-align: center;
+			}
+
+			&.local {
+				justify-content: flex-start;
+
+				.goles {
+					margin-left: auto;
+				}
+			}
+
+			&.visitante {
+				justify-content: flex-end;
+
+				.goles {
+					margin-right: auto;
+				}
+			}
+		}
+
+		.info {
+			text-align: center;
+			min-width: 40px;
+
+			.fecha {
+				font-size: 0.75em;
+				color: var(--col-primary-40);
+			}
+
+			.periodo {
+				font-size: 0.7em;
+				color: $col-verde;
+				font-weight: 700;
+				text-transform: uppercase;
+			}
+		}
+	}
+}

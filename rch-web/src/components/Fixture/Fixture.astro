@@ -1,0 +1,131 @@
+---
+import "./fixture.scss";
+import Partidos from "../Partidos/Partidos.astro";
+import Rondas from "../Rondas/Rondas.astro";
+
+interface Partido {
+	id: number;
+	local: string | null;
+	visitante: string | null;
+	goles_local: number | null;
+	goles_visitante: number | null;
+	fecha: string;
+	nro_fecha: number;
+	nro_partido: number;
+	imagen_local: string;
+	imagen_visitante: string;
+	instancia: string | null;
+	zona_desc: string | null;
+	cantidad_rondas: number;
+	estado: number;
+	desc_estado: string | null;
+	periodo: string | null;
+}
+
+interface Props {
+	partidos: Partido[];
+	nombreTorneo?: string;
+}
+
+const { partidos, nombreTorneo } = Astro.props;
+
+// Group partidos by instancia
+type InstanciaGroup = {
+	nombre: string;
+	rondas: Map<number, Partido[]>;
+};
+
+const instanciaMap = new Map<string, InstanciaGroup>();
+
+for (const p of partidos) {
+	const instKey = p.instancia ?? "General";
+	if (!instanciaMap.has(instKey)) {
+		instanciaMap.set(instKey, { nombre: instKey, rondas: new Map() });
+	}
+	const inst = instanciaMap.get(instKey)!;
+	if (!inst.rondas.has(p.nro_fecha)) {
+		inst.rondas.set(p.nro_fecha, []);
+	}
+	inst.rondas.get(p.nro_fecha)!.push(p);
+}
+
+const instancias = [...instanciaMap.values()];
+---
+
+<div class="fixture-container" id="fixture">
+	{nombreTorneo && <h4 class="fixture-title">Fixture - {nombreTorneo}</h4>}
+
+	{instancias.length === 0 && (
+		<p class="no-data">No hay fixture disponible.</p>
+	)}
+
+	{instancias.length > 1 && (
+		<div class="instancia-tabs">
+			{instancias.map((inst, i) => (
+				<button
+					class={`tab-btn ${i === 0 ? "active" : ""}`}
+					data-instancia={i}
+				>
+					{inst.nombre}
+				</button>
+			))}
+		</div>
+	)}
+
+	{instancias.map((inst, instIdx) => {
+		const rondasArr = [...inst.rondas.keys()].sort((a, b) => a - b);
+		const firstRonda = rondasArr[0];
+
+		return (
+			<div
+				class={`instancia-panel ${instIdx === 0 ? "visible" : ""}`}
+				data-instancia-panel={instIdx}
+			>
+				{rondasArr.length > 1 && (
+					<Rondas rondas={rondasArr} rondaActiva={firstRonda} />
+				)}
+
+				{rondasArr.map((ronda) => (
+					<div
+						class={`ronda-panel ${ronda === firstRonda ? "visible" : ""}`}
+						data-ronda-panel={ronda}
+					>
+						<Partidos partidos={inst.rondas.get(ronda) ?? []} />
+					</div>
+				))}
+			</div>
+		);
+	})}
+</div>
+
+<script>
+	// Instancia tabs
+	document.querySelectorAll('.instancia-tabs .tab-btn').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const idx = (btn as HTMLElement).dataset.instancia;
+			const container = btn.closest('.fixture-container');
+			if (!container) return;
+
+			container.querySelectorAll('.instancia-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+			btn.classList.add('active');
+
+			container.querySelectorAll('.instancia-panel').forEach(p => p.classList.remove('visible'));
+			container.querySelector(`[data-instancia-panel="${idx}"]`)?.classList.add('visible');
+		});
+	});
+
+	// Ronda buttons
+	document.querySelectorAll('.rondas-nav .ronda-btn').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const ronda = (btn as HTMLElement).dataset.ronda;
+			const panel = btn.closest('.instancia-panel');
+			if (!panel) return;
+
+			panel.querySelectorAll('.rondas-nav .ronda-btn').forEach(b => b.classList.remove('active'));
+			btn.classList.add('active');
+
+			panel.querySelectorAll('.ronda-panel').forEach(p => p.classList.remove('visible'));
+			panel.querySelector(`[data-ronda-panel="${ronda}"]`)?.classList.add('visible');
+		});
+	});
+</script>

@@ -1,0 +1,71 @@
+---
+import "./partidos.scss";
+
+interface Partido {
+	id: number;
+	local: string | null;
+	visitante: string | null;
+	goles_local: number | null;
+	goles_visitante: number | null;
+	fecha: string;
+	nro_fecha: number;
+	nro_partido: number;
+	imagen_local: string;
+	imagen_visitante: string;
+	estado: number;
+	desc_estado: string | null;
+	periodo: string | null;
+}
+
+interface Props {
+	partidos: Partido[];
+}
+
+const { partidos } = Astro.props;
+const ERROR_IMG = "http://rch.devzone.com.ar/files/teams/0.png";
+---
+
+<div class="partidos-list">
+	{partidos.length === 0 && (
+		<p class="no-data">No hay partidos para esta fecha.</p>
+	)}
+	{partidos.map((p) => {
+		const isPlaying = p.desc_estado === "playing";
+		const isPlayed = p.goles_local != null && p.goles_visitante != null;
+		const statusClass = isPlaying ? "playing" : isPlayed ? "played" : "";
+		const fechaObj = new Date(p.fecha);
+		const fechaStr = `${fechaObj.getDate()}/${fechaObj.getMonth() + 1}`;
+
+		return (
+			<div class={`partido ${statusClass}`}>
+				<div class="equipo local">
+					<img
+						src={p.imagen_local}
+						alt={p.local ?? ""}
+						loading="lazy"
+						onerror={`this.onerror=null;this.src='${ERROR_IMG}'`}
+					/>
+					<span class="nombre">{p.local}</span>
+					<span class="goles">{p.goles_local ?? ""}</span>
+				</div>
+				<div class="info">
+					{isPlaying && p.periodo ? (
+						<span class="periodo">{p.periodo}</span>
+					) : (
+						<span class="fecha">{fechaStr}</span>
+					)}
+				</div>
+				<div class="equipo visitante">
+					<span class="goles">{p.goles_visitante ?? ""}</span>
+					<span class="nombre">{p.visitante}</span>
+					<img
+						src={p.imagen_visitante}
+						alt={p.visitante ?? ""}
+						loading="lazy"
+						onerror={`this.onerror=null;this.src='${ERROR_IMG}'`}
+					/>
+				</div>
+			</div>
+		);
+	})}
+</div>

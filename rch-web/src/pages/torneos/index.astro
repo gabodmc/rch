@@ -1,0 +1,227 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Header from "../../components/Header/Header.astro";
+import Footer from "../../components/Footer/Footer.astro";
+import TorneosList from "../../components/TorneosList/TorneosList.astro";
+import Posiciones from "../../components/Posiciones/Posiciones.astro";
+import Fixture from "../../components/Fixture/Fixture.astro";
+import Publicidad from "../../components/Publicidad/Publicidad.astro";
+import { useContent } from "../../content/useContent.js";
+
+const url = new URL(Astro.request.url);
+const torneoIdParam = url.searchParams.get("torneo_id");
+
+// 1. Load list of torneos + publicidades
+const [torneos, publicidades] = await Promise.all([
+	useContent({ source: "torneos-list" }),
+	useContent({ source: "publicidades" }),
+]);
+
+const torneosList: any[] = torneos ?? [];
+
+// 2. Determine active torneo
+let torneoId: number | null = torneoIdParam ? Number(torneoIdParam) : null;
+
+if (!torneoId && torneosList.length > 0) {
+	// Try torneo destacado, fallback to first in list
+	const destacado = await useContent({ source: "torneo-destacado" });
+	torneoId = destacado?.id ?? torneosList[0]?.id ?? null;
+}
+
+// 3. Load torneo data
+let torneo: any = null;
+let instancias: any[] = [];
+let fixture: any[] = [];
+
+if (torneoId) {
+	[torneo, instancias, fixture] = await Promise.all([
+		useContent({ source: "torneo-detail", query: { id: torneoId } }),
+		useContent({ source: "torneo-instancias", query: { torneo_id: torneoId } }),
+		useContent({ source: "torneo-fixture", query: { torneo_id: torneoId } }),
+	]);
+}
+
+instancias = instancias ?? [];
+fixture = fixture ?? [];
+
+// 4. Find first instancia with calcular_posiciones=true
+const instanciaPosiciones = instancias.find((i: any) => i.calcular_posiciones);
+
+// 5. Load zonas & posiciones if we have an instancia
+let zonas: any[] = [];
+let posiciones: any[] = [];
+
+if (instanciaPosiciones) {
+	zonas = (await useContent({
+		source: "instancia-zonas",
+		query: { instancia_id: instanciaPosiciones.id },
+	})) ?? [];
+
+	const zonaId = zonas.length > 1 ? zonas[0]?.id : undefined;
+
+	posiciones = (await useContent({
+		source: "instancia-posiciones",
+		query: {
+			instancia_id: instanciaPosiciones.id,
+			torneo_id: torneoId,
+			zona_id: zonaId,
+		},
+	})) ?? [];
+}
+
+const pub300 = (publicidades ?? []).filter((p: any) => p.ancho === 300 && p.alto === 250);
+const pub350 = (publicidades ?? []).filter((p: any) => p.ancho === 350 && p.alto === 100);
+
+const pageTitle = torneo?.nombre
+	? `${torneo.nombre} - Resultados y Estadísticas - Rugby Champagne`
+	: "Torneos - Rugby Champagne";
+---
+
+<MainLayout title={pageTitle}>
+	<div class="main-content">
+		<Header />
+		<main>
+			<div class="wrapper">
+				<div class="category-title">
+					Resultados &amp; Estadísticas
+				</div>
+
+				<div class="torneos-layout">
+					<div class="torneos-sidebar">
+						<TorneosList torneos={torneosList} torneoActivo={torneoId ?? 0} />
+					</div>
+
+					<div class="torneos-main">
+						{torneo && (
+							<h2 class="torneo-nombre">{torneo.nombre}</h2>
+						)}
+
+						{posiciones.length > 0 && (
+							<div class="section-posiciones">
+								{zonas.length > 1 && (
+									<div class="zona-tabs">
+										{zonas.map((z: any, i: number) => (
+											<a
+												href={`/torneos?torneo_id=${torneoId}&zona_id=${z.id}`}
+												class={`zona-btn ${i === 0 ? "active" : ""}`}
+											>
+												{z.nombre ?? `Zona ${i + 1}`}
+											</a>
+										))}
+									</div>
+								)}
+								<Posiciones
+									posiciones={posiciones}
+									nombreTorneo={instanciaPosiciones?.nombre ?? "Posiciones"}
+								/>
+							</div>
+						)}
+
+						{fixture.length > 0 && (
+							<div class="section-fixture">
+								<Fixture
+									partidos={fixture}
+									nombreTorneo={torneo?.nombre}
+								/>
+							</div>
+						)}
+
+						{!torneo && (
+							<div class="no-torneo">
+								<p>Seleccioná un torneo de la lista para ver resultados y estadísticas.</p>
+							</div>
+						)}
+					</div>
+
+					<aside>
+						{pub300.length > 0 && (
+							<Publicidad items={pub300} />
+						)}
+						{pub350.length > 0 && (
+							<Publicidad items={pub350} />
+						)}
+					</aside>
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</div>
+</MainLayout>
+
+<style lang="scss">
+	@use "../../styles/variables" as *;
+	@use "../../styles/palette" as *;
+
+	.torneos-layout {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+
+		@media (min-width: $bp-md) {
+			grid-template-columns: 200px 1fr 300px;
+		}
+
+		@media (min-width: $bp-lg) {
+			grid-template-columns: 220px 1fr 300px;
+		}
+	}
+
+	.torneos-sidebar {
+		@media (max-width: #{$bp-md - 1}) {
+			order: 3;
+		}
+	}
+
+	.torneos-main {
+		min-width: 0;
+	}
+
+	.torneo-nombre {
+		font-size: 1.1em;
+		font-weight: 700;
+		padding: 0.5rem 0 1rem;
+		color: var(--primary);
+	}
+
+	.section-posiciones {
+		margin-bottom: 1.5rem;
+	}
+
+	.section-fixture {
+		margin-bottom: 1.5rem;
+	}
+
+	.zona-tabs {
+		display: flex;
+		gap: 0.3rem;
+		margin-bottom: 0.5rem;
+		flex-wrap: wrap;
+
+		.zona-btn {
+			display: inline-block;
+			padding: 0.4rem 0.8rem;
+			border-radius: 6px;
+			font-size: 0.8em;
+			font-weight: 600;
+			background: var(--col-primary-10);
+			color: var(--primary);
+			transition: background 0.15s;
+
+			&:hover {
+				background: var(--col-primary-20);
+			}
+
+			&.active {
+				background: $col-azullogo;
+				color: #fff;
+			}
+		}
+	}
+
+	.no-torneo {
+		padding: 3rem 1rem;
+		text-align: center;
+		color: var(--col-primary-40);
+		font-size: 0.95em;
+	}
+</style>

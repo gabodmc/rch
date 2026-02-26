@@ -1,0 +1,24 @@
+---
+import "./rondas.scss";
+
+interface Props {
+	rondas: number[];
+	rondaActiva?: number;
+}
+
+const { rondas, rondaActiva } = Astro.props;
+---
+
+<div class="rondas-nav">
+	<span class="label">Fecha:</span>
+	<div class="rondas-list">
+		{rondas.map((r) => (
+			<button
+				class={`ronda-btn ${r === rondaActiva ? "active" : ""}`}
+				data-ronda={r}
+			>
+				{r}
+			</button>
+		))}
+	</div>
+</div>
