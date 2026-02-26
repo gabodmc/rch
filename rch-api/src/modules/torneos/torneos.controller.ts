@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import * as service from "./torneos.service.js";
 
-export default async function torneosRoutes(app: FastifyInstance) {
+export default async function torneosController(app: FastifyInstance) {
 	app.get("/api/torneos", async () => {
 		return service.obtenerTorneos();
 	});

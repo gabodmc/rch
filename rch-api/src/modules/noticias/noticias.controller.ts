@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import * as service from "./noticias.service.js";
 
-export default async function noticiasRoutes(app: FastifyInstance) {
+export default async function noticiasController(app: FastifyInstance) {
 	app.get("/api/noticias", async () => {
 		return service.obtenerNoticias();
 	});
